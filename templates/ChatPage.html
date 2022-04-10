@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatPage</title>
+    <style>
+        .container {
+            height: 100%;
+            background-image: linear-gradient(to right, #fbc2eb, #a6c1ee);
+        }
+    </style>
+
+
+</head>
+
+<body onload="Iconnect()">
+
+    <div class="container">
+        <h3>我的用户名：</h3>
+        <h3>{{username}}</h3>
+        <h3>我的账号：</h3>
+        <h3>{{email}}</h3>
+        <br>
+        <form>
+            <h3>WebSocket 聊天室：</h3>
+            <textarea id="responseText" style="width: 500px; height: 300px;left: 50%;background-color: #fbc2eb;"></textarea>
+            <br>
+            <input id="message" type="text" name="message" style="width: 300px;" placeholder="在此输入聊天信息" >
+            <input type="button" value="发送信息" onclick="send_message()">
+            <input type="button" value="退出聊天室" onclick="leave()">
+        </form>
+    </div>
+    <script src="https://cdn.bootcdn.net/ajax/libs/socket.io/2.3.1/socket.io.js"></script>
+    <script>
+        var socket;
+        function Iconnect() {
+
+            socket = io.connect('ws://' + document.domain + ':' + location.port + '/chatroom');
+            socket.on('connect',function (){
+                console.log("连接");
+            });
+            socket.emit('joined', 'chatroom');
+            console.log("发送成功");
+            socket.on('Uconnect', function(data) {
+            console.log("接收成功");
+            document.getElementById('responseText').value += data.time + '\n';
+            document.getElementById('responseText').value += data.data + '进入聊天室\n';
+            });
+            socket.on('back message',function(x){
+            console.log('成功辣1')
+            document.getElementById('responseText').value += x.time + '\n';
+            document.getElementById('responseText').value += x.user+':'+x.data+'\n';
+            console.log('成功辣2')
+        });
+            socket.on('Uleave', function(data) {
+            console.log("离开2");
+            document.getElementById('responseText').value += data.time + '\n';
+            document.getElementById('responseText').value += data.data + '离开聊天室\n';
+            console.log('离开了3')
+            });
+
+        }
+        function leave(){
+            socket.emit('leave', 'chatroom');
+            console.log("离开1");
+            window.location.href="http://127.0.0.1:5000/login";
+        }
+
+
+
+
+       function send_message(){
+            x=document.getElementById('message').value
+            socket.emit('chat message',x)
+       }
+
+    </script>
+    <script>
+
+    </script>
+</body>
+
+</html>
